@@ -1,0 +1,374 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #222222 0%, #2a2a2a 100%);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #e0e0e0;
+}
+
+.viewer-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+    /* PCの場合の最大幅 */
+    max-width: 1280px; /* 見開きA4幅 + 左右余白を確保できる最大幅 */
+    box-sizing: border-box;
+    padding: 20px; /* PCの場合の全体的な余白 */
+}
+
+#flipbook {
+    /* JavaScriptでサイズを動的に設定するため、ここでは初期値と遷移のみ */
+    transform: scale(1);
+    transform-origin: center center;
+    transition: transform 0.2s ease-out;
+    cursor: grab;
+    will-change: transform, left, top;
+    margin: auto; /* 中央揃えのため */
+}
+
+#flipbook.grabbing {
+    cursor: grabbing;
+}
+
+#flipbook .page {
+    background-color: #ffffff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+#flipbook .page img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.side-nav-button {
+    position: fixed;
+    /* PCの場合、垂直中央に配置 (現状維持) */
+    top: 50%;
+    transform: translateY(-50%);
+    bottom: auto; /* bottomの指定を解除 */
+
+    padding: 15px;
+    font-size: 24px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #333;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    z-index: 999;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+.side-nav-button:hover {
+    background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%);
+    transform: translateY(-50%) scale(1.05);
+}
+.side-nav-button:active {
+    transform: translateY(-50%) scale(0.95);
+}
+.side-nav-button.disabled {
+    background-color: rgba(100, 100, 100, 0.5);
+    cursor: not-allowed;
+    transform: translateY(-50%);
+}
+#prev-page-button { left: 20px; }
+#next-page-button { right: 20px; }
+
+.zoom-controls {
+    display: flex;
+    gap: 10px;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 990;
+    background-color: rgba(50, 50, 50, 0.9);
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.zoom-controls button {
+    padding: 8px 15px;
+    font-size: 18px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #333;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.zoom-controls button:hover { background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%); transform: translateY(-2px);}
+.zoom-controls button:active { transform: translateY(0);}
+
+#page-number-display {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.8);
+    color: #FFD700;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+#page-progress-bar-container {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    height: 8px;
+    background-color: rgba(80, 80, 80, 0.5);
+    border-radius: 4px;
+    overflow: hidden;
+    z-index: 995;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+#page-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease-out;
+}
+
+/* --- サムネイルサイドバー --- */
+#thumbnail-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    background-color: #222222;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.6);
+    z-index: 1010;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#thumbnail-sidebar.visible { transform: translateX(0); }
+#thumbnail-sidebar.hidden { transform: translateX(100%); }
+
+.thumbnail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #555;
+}
+.thumbnail-header h3 { margin: 0; color: #FFD700; }
+#close-thumbnail-sidebar {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #e0e0e0;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+#close-thumbnail-sidebar:hover { color: #ffffff; }
+
+#thumbnail-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.thumbnail-item {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 0 12px 0;
+    border: 1.5px solid #555;
+    border-radius: 10px;
+    background-color: #333333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0;
+}
+
+.thumbnail-item:hover {
+    background-color: #444444;
+    border-color: #FFD700;
+    transform: translateY(-2px);
+}
+
+.thumbnail-item.active {
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    background-color: #3d3d3d;
+}
+
+.thumbnail-item img {
+    width: 100px;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    margin-bottom: 12px;
+}
+
+.thumbnail-item .page-label {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #FFD700;
+}
+
+#cta-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #333;
+    padding: 12px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+#cta-button:hover { background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%); transform: translateY(-2px);}
+#cta-button:active { transform: translateY(0); }
+
+/* レスポンシブデザインの調整 */
+@media (max-width: 1280px) { /* PCでもウィンドウサイズが狭くなった場合の調整 */
+    .viewer-wrapper {
+        padding: 10px; /* 画面端との余白を小さく */
+    }
+    /* #flipbookの具体的なサイズはJSで制御。CSSは最大制約のみ。 */
+    #flipbook {
+        /* max-widthとmax-heightは、JSが計算したサイズがこれらを超えないための安全策 */
+        max-width: calc(100vw - 40px); /* 画面幅 - 左右の余白 */
+        max-height: calc(100vh - 120px); /* 画面高さ - 上下の余白とコントロール */
+        width: auto;
+        height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overscroll-behavior-y: none;
+    touch-action: manipulation;
+    background: linear-gradient(135deg, #222222 0%, #2a2a2a 100%);
+  }
+  .viewer-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    padding: 5px !important;
+    margin-bottom: 70px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+  #flipbook {
+    margin: 0 auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: auto !important;
+    /* JSでmax-heightを常時調整（下記JSとセット） */
+    transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+    background: none !important;
+  }
+  #flipbook .page img {
+    margin: 0 auto !important;
+    display: block !important;
+    max-width: 98vw !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    background: none !important;
+    border-radius: 5px !important;
+  }
+  .side-nav-button {
+    position: fixed !important;
+    bottom: 22px !important;
+    left: 18px !important;
+    right: auto !important;
+    top: auto !important;
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 2rem !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #FFD700DD 0%, #FFA500DD 100%) !important;
+    opacity: 0.97 !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.26) !important;
+    z-index: 2001 !important;
+    border: none !important;
+  }
+  #next-page-button { left: auto !important; right: 18px !important; }
+  .zoom-controls {
+    bottom: 85px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 10px 14px !important;
+    gap: 14px !important;
+    z-index: 2000 !important;
+  }
+  #page-number-display { bottom: 22px !important; left: 50%; transform: translateX(-50%) !important; z-index: 2002 !important; }
+  #page-progress-bar-container { bottom: 65px !important; }
+  #cta-button {
+    width: 92vw !important;
+    min-width: 0 !important;
+    left: 4vw !important;
+    right: 4vw !important;
+    top: 12px !important;
+    font-size: 1.18em !important;
+    text-align: center !important;
+    padding: 14px 0 !important;
+    border-radius: 26px !important;
+    z-index: 2100 !important;
+  }
+  #thumbnail-sidebar { width: 100vw !important; left: 0 !important; right: 0 !important; border-radius: 0 !important; }
+}
+
+
+.hidden { display: none !important; }
