@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMPLE</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    
+</head>
+<body>
+    
+    <a href="https://handa-cp.co.jp/" id="cta-button" target="_blank" rel="noopener noreferrer">お問い合わせはこちら</a>
+    <div class="viewer-wrapper">
+        <div id="flipbook">
+            
+            <div class="page"><img src="images_png/catalog-01.png" alt="デジタルカタログ 1ページ目"></div>
+            <div class="page"><img src="images_png/catalog-02.png" alt="デジタルカタログ 2ページ目"></div>
+            <div class="page"><img src="images_png/catalog-03.png" alt="デジタルカタログ 3ページ目"></div>
+            <div class="page"><img src="images_png/catalog-04.png" alt="デジタルカタログ 4ページ目"></div>
+            <div class="page"><img src="images_png/catalog-05.png" alt="デジタルカタログ 5ページ目"></div>
+            <div class="page"><img src="images_png/catalog-06.png" alt="デジタルカタログ 6ページ目"></div>
+            <div class="page"><img src="images_png/catalog-07.png" alt="デジタルカタログ 7ページ目"></div>
+            <div class="page"><img src="images_png/catalog-08.png" alt="デジタルカタログ 8ページ目"></div>
+            <div class="page"><img src="images_png/catalog-09.png" alt="デジタルカタログ 9ページ目"></div>
+            <div class="page"><img src="images_png/catalog-10.png" alt="デジタルカタログ 10ページ目"></div>
+            <div class="page"><img src="images_png/catalog-11.png" alt="デジタルカタログ 11ページ目"></div>
+            <div class="page"><img src="images_png/catalog-12.png" alt="デジタルカタログ 12ページ目"></div>
+            <div class="page"><img src="images_png/catalog-13.png" alt="デジタルカタログ 13ページ目"></div>
+            <div class="page"><img src="images_png/catalog-14.png" alt="デジタルカタログ 14ページ目"></div>
+        </div>
+    </div>
+    <button id="prev-page-button" class="side-nav-button">&lt;</button>
+    <button id="next-page-button" class="side-nav-button">&gt;</button>
+    <div class="zoom-controls">
+        <button id="zoom-in">＋</button>
+        <button id="zoom-out">－</button>
+        <button id="thumbnail-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather">
+                <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+        </button>
+    </div>
+    <div id="page-number-display"></div>
+    <div id="page-progress-bar-container">
+        <div id="page-progress-bar"></div>
+    </div>
+    <div id="thumbnail-sidebar" class="hidden">
+        <div class="thumbnail-header">
+            <h3>目次</h3>
+            <button id="close-thumbnail-sidebar">&times;</button>
+        </div>
+        <div id="thumbnail-container">
+        </div>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/turn.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
+</html>
