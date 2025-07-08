@@ -1,0 +1,325 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* 黒に近いグレーをベースにした薄い斜めグラデーション */
+    background: linear-gradient(135deg, #222222 0%, #2a2a2a 100%);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #e0e0e0; /* 明るいグレーを維持 */
+}
+
+.viewer-wrapper {
+    display: flex;
+    /* カタログが中央に来るようにflex-growを設定 */
+    flex-grow: 1;
+    width: 100%;
+    /* A4縦の比率(1:SQRT(2) = 1:1.414)を考慮した最大幅。
+       左右の余白を確保するため、最大幅を調整 */
+    max-width: 1280px; /* 見開きA4幅 + 左右余白を確保できる最大幅 */
+    box-sizing: border-box;
+    padding: 20px; /* 全体的な余白 */
+    /* カタログを中央に寄せるためのjustify-content */
+    justify-content: center;
+    align-items: center;
+}
+
+#flipbook {
+    /* JavaScriptでサイズを動的に設定するため、ここでは初期値を設定 */
+    width: 1190px; /* A4見開き (595px * 2) */
+    height: 842px; /* A4の高さ */
+    transform: scale(1);
+    transform-origin: center center;
+    transition: transform 0.2s ease-out;
+    cursor: grab;
+    will-change: transform, left, top;
+    /* フリップブック自体も中央揃えにするためのマージン */
+    margin: auto;
+}
+
+#flipbook.grabbing {
+    cursor: grabbing;
+}
+
+#flipbook .page {
+    background-color: #ffffff; /* ページ自体は白を維持 */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); /* 影を強調 */
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+#flipbook .page img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.side-nav-button {
+    position: fixed;
+    /* PCの場合、垂直中央に配置 (現状維持) */
+    top: 50%;
+    transform: translateY(-50%);
+    bottom: auto; /* bottomの指定を解除 */
+
+    padding: 15px;
+    font-size: 24px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #333;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    z-index: 999;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+.side-nav-button:hover {
+    transform: translateY(-50%) scale(1.05);
+}
+.side-nav-button:active {
+    transform: translateY(-50%) scale(0.95);
+}
+.side-nav-button.disabled {
+    transform: translateY(-50%);
+}
+#prev-page-button { left: 20px; }
+#next-page-button { right: 20px; }
+
+.zoom-controls {
+    display: flex;
+    gap: 10px;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 990;
+    background-color: rgba(50, 50, 50, 0.9); /* ズームコントロールの背景を濃いグレーに */
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.zoom-controls button {
+    padding: 8px 15px;
+    font-size: 18px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* ゴールドのグラデーション */
+    color: #333; /* ボタンの文字色を濃い色に */
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.zoom-controls button:hover { background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%); transform: translateY(-2px);}
+.zoom-controls button:active { transform: translateY(0);}
+
+#page-number-display {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.8); /* ページ表示の背景を濃いグレーに */
+    color: #FFD700; /* 文字色をゴールドに */
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+#page-progress-bar-container {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    height: 8px;
+    background-color: rgba(80, 80, 80, 0.5); /* プログレスバーの背景をグレーに */
+    border-radius: 4px;
+    overflow: hidden;
+    z-index: 995;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+#page-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%); /* ゴールドのグラデーション */
+    border-radius: 4px;
+    transition: width 0.3s ease-out;
+}
+
+/* --- サムネイルサイドバー --- */
+#thumbnail-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    background-color: #222222; /* サイドバーの背景を濃いグレーに */
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.6);
+    z-index: 1010;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#thumbnail-sidebar.visible { transform: translateX(0); }
+#thumbnail-sidebar.hidden { transform: translateX(100%); }
+
+.thumbnail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #555; /* ボーダーの色を調整 */
+}
+.thumbnail-header h3 { margin: 0; color: #FFD700; } /* ヘッダーの文字色をゴールドに */
+#close-thumbnail-sidebar {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #e0e0e0; /* 閉じるボタンの色を明るいグレーに */
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+#close-thumbnail-sidebar:hover { color: #ffffff; } /* ホバー時を白に */
+
+#thumbnail-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.thumbnail-item {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 0 12px 0;
+    border: 1.5px solid #555; /* ボーダーの色を調整 */
+    border-radius: 10px;
+    background-color: #333333; /* サムネイルアイテムの背景を濃いグレーに */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0;
+}
+
+.thumbnail-item:hover {
+    background-color: #444444; /* ホバー時の背景色を調整 */
+    border-color: #FFD700; /* ホバー時のボーダーをゴールドに */
+    transform: translateY(-2px);
+}
+
+.thumbnail-item.active {
+    border: 2px solid #FFD700; /* アクティブ時のボーダーをゴールドに */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); /* アクティブ時の影をゴールドに */
+    background-color: #3d3d3d; /* アクティブ時の背景色を調整 */
+}
+
+.thumbnail-item img {
+    width: 100px;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    margin-bottom: 12px;
+}
+
+.thumbnail-item .page-label {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #FFD700; /* ページラベルをゴールドに */
+}
+
+#cta-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* ゴールドのグラデーション */
+    color: #333; /* ボタンの文字色を濃い色に */
+    padding: 12px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+#cta-button:hover { background: linear-gradient(135deg, #FFC700 0%, #FF9500 100%); transform: translateY(-2px);}
+#cta-button:active { transform: translateY(0); }
+
+/* レスポンシブデザインの調整 */
+@media (max-width: 1280px) { /* フリップブックの最大幅に合わせて調整 */
+    .viewer-wrapper {
+        padding: 10px; /* 画面端との余白を小さく */
+    }
+    #flipbook {
+        /* 画面サイズに応じて幅と高さを調整し、アスペクト比を維持 */
+        max-width: calc(100vw - 40px); /* 画面幅 - 左右の余白 */
+        max-height: calc(100vh - 120px); /* 画面高さ - 上下の余白とコントロール */
+        width: auto; /* autoにしてmax-width/max-heightで調整 */
+        height: auto; /* autoにしてmax-width/max-heightで調整 */
+    }
+    #flipbook .page img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* 画像がページ内に収まるように */
+    }
+}
+
+@media (max-width: 768px) {
+    #thumbnail-sidebar { width: 100%; }
+    #cta-button { top: 15px; right: 15px; padding: 10px 20px; font-size: 1em;}
+
+    /* 修正点: スマホではボタンを画像(カタログ)の下に配置 */
+    .side-nav-button {
+        top: auto; /* topの指定を解除 */
+        transform: none; /* transformの指定を解除 */
+        bottom: 120px; /* 他のコントロールと重ならないように調整 */
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    /* スマホでホバー・アクティブ時のtransformも調整 */
+    .side-nav-button:hover {
+        transform: scale(1.05);
+    }
+    .side-nav-button:active {
+        transform: scale(0.95);
+    }
+    .side-nav-button.disabled {
+        transform: none;
+    }
+
+    #prev-page-button { left: 5px; }
+    #next-page-button { right: 5px; }
+}
+
+.hidden { display: none !important; }
