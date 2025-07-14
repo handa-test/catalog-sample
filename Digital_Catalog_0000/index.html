@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>デジタルカタログ</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="catalog-main-wrapper">
+    <button id="prev-page-button" class="side-nav-button" aria-label="前のページ">&lt;</button>
+    <div id="flipbook">
+      <div class="page"><img src="images_png/catalog-01.png" alt="表紙"></div>
+      <div class="page"><img src="images_png/catalog-02.png" alt="2"></div>
+      <div class="page"><img src="images_png/catalog-03.png" alt="3"></div>
+      <div class="page"><img src="images_png/catalog-04.png" alt="4"></div>
+      <div class="page"><img src="images_png/catalog-05.png" alt="5"></div>
+      <div class="page"><img src="images_png/catalog-06.png" alt="6"></div>
+      <div class="page"><img src="images_png/catalog-07.png" alt="7"></div>
+      <div class="page"><img src="images_png/catalog-08.png" alt="8"></div>
+      <div class="page"><img src="images_png/catalog-09.png" alt="9"></div>
+      <div class="page"><img src="images_png/catalog-10.png" alt="10"></div>
+      <div class="page"><img src="images_png/catalog-11.png" alt="11"></div>
+      <div class="page"><img src="images_png/catalog-12.png" alt="12"></div>
+      <div class="page"><img src="images_png/catalog-13.png" alt="13"></div>
+      <div class="page"><img src="images_png/catalog-14.png" alt="裏表紙"></div>
+    </div>
+    <button id="next-page-button" class="side-nav-button" aria-label="次のページ">&gt;</button>
+  </div>
+
+  <!-- ナビゲーションパネル（初期非表示、サムネイルボタン削除済） -->
+  <button id="show-nav-btn" class="floating-btn" title="ナビを開く">&#9776;</button>
+  <div id="nav-panel" class="panel hidden">
+    <button id="zoom-in-btn" title="拡大">＋</button>
+    <span id="zoom-level">100%</span>
+    <button id="zoom-out-btn" title="縮小">－</button>
+    <button id="hide-nav-btn" title="閉じる">✕</button>
+  </div>
+
+<!-- 画面左端：ふわっとサムネイルサイドバー -->
+<button id="thumb-sidebar-arrow" class="thumb-arrow-btn" onclick="openThumbSidebar()">&#x25B6;</button>
+<div id="thumb-sidebar" class="thumb-sidebar hidden">
+  <div class="thumb-sidebar-header">
+    <span>サムネイル</span>
+    <button id="thumb-sidebar-close" title="閉じる" onclick="closeThumbSidebar()">✕</button>
+  </div>
+  <div id="thumb-sidebar-list"></div>
+</div>
+
+
+  <!-- ページ番号（小さく下部中央） -->
+  <div id="page-indicator"></div>
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/turn.min.js"></script>
+  <script src="js/scripts.js"></script>
+    <a href="https://handa-cp.co.jp/" id="cta-button" target="_blank" rel="noopener noreferrer">
+  お問い合わせはこちら
+</a>
+
+</body>
+</html>
