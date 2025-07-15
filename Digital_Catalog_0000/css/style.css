@@ -1,0 +1,433 @@
+/* --- ベース: 全体・背景・リセット --- */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Yu Gothic', 'Meiryo', sans-serif;
+    background: #f8f9fa;
+    color: #222;
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#container {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- 冊子本体 --- */
+#flipbook {
+    aspect-ratio: 1.414 / 1;   /* 横:縦。例：A4見開き（420:297）なら約1.414:1 */
+    width: 90vw;               /* ウィンドウ幅に応じて最大サイズを指定 */
+    max-width: 1240px;         /* PC最大時 */
+    height: auto;              /* アスペクト比で自動 */
+    background: #111;          /* 下地 */
+    margin: 32px auto 16px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 18px;
+    box-shadow: 0 6px 36px 0 rgba(0,0,0,0.10);
+    transition: width 0.3s, height 0.3s;
+}
+
+#flipbook .page {
+    width: 50%;      /* 見開き時 */
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#flipbook .page img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* 縦横比を崩さず、flipbook枠いっぱい */
+    display: block;
+}
+
+/* --- ページ番号・ズームレベル --- */
+#page-indicator, #zoom-level {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: #444;
+    margin: 0 8px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 6px;
+    padding: 3px 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+    z-index: 11;
+}
+
+#zoom-level {
+    left: auto;
+    right: 24px;
+    top: 8px;
+    transform: none;
+}
+
+/* --- ナビゲーションパネル --- */
+#nav-panel {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.96);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 16px 32px;
+    display: flex;
+    gap: 18px;
+    z-index: 22;
+}
+#nav-panel.hidden {
+    display: none;
+}
+
+/* --- サイドバー（サムネイル一覧） --- */
+#thumb-sidebar {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.10);
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    transition: right 0.28s cubic-bezier(.5,1.2,.5,1);
+    z-index: 30;
+    overflow-y: auto;
+    padding: 32px 12px 24px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+#thumb-sidebar.visible {
+    right: 0;
+}
+#thumb-sidebar .close-btn,
+#thumb-sidebar-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    font-size: 1.6rem;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    z-index: 35;
+}
+
+/* サムネイルリスト */
+#thumb-sidebar-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 38px;
+}
+.thumbnail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.thumbnail-item {
+    background: #f5f6f8;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 0 6px rgba(0,0,0,0.03);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.thumbnail-item.active,
+.thumbnail-item:focus {
+    border-color: #00aabf;
+    box-shadow: 0 0 0 2px #00aabf22;
+    outline: none;
+}
+.thumbnail-item img {
+    width: 74px;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+}
+.thumbnail-item.cover img {
+    width: 90px;
+}
+.page-label {
+    font-size: 0.93rem;
+    color: #888;
+    margin-left: 7px;
+    min-width: 48px;
+    text-align: left;
+}
+
+/* --- サイドバー開閉ボタン --- */
+#thumb-sidebar-arrow {
+    position: fixed;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    background: #00bcd4;
+    color: #fff;
+    border-radius: 50%;
+    border: none;
+    width: 44px;
+    height: 44px;
+    font-size: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+    box-shadow: 0 2px 16px rgba(0,188,212,0.09);
+    cursor: pointer;
+    opacity: 0.86;
+    transition: opacity 0.15s;
+}
+#thumb-sidebar.visible ~ #thumb-sidebar-arrow {
+    display: none;
+}
+#thumb-sidebar-arrow:hover {
+    opacity: 1;
+}
+
+/* --- ページ送りボタン --- */
+#prev-page-button, #next-page-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.10);
+    width: 56px; height: 56px;
+    font-size: 2.2rem;
+    color: #009688;
+    cursor: pointer;
+    opacity: 0.84;
+    transition: background 0.2s, color 0.2s;
+}
+#prev-page-button:hover, #next-page-button:hover {
+    background: #e0f7fa;
+    color: #00796b;
+    opacity: 1;
+}
+#prev-page-button {
+    left: 14px;
+}
+#next-page-button {
+    right: 14px;
+}
+
+/* --- ズームボタン --- */
+#zoom-in-btn, #zoom-out-btn {
+    background: #e0f7fa;
+    border: none;
+    border-radius: 6px;
+    margin: 0 4px;
+    padding: 5px 10px;
+    font-size: 1.4rem;
+    color: #008b8b;
+    cursor: pointer;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    transition: background 0.18s;
+}
+#zoom-in-btn:hover, #zoom-out-btn:hover {
+    background: #b2ebf2;
+}
+
+/* --- レスポンシブ設計 --- */
+
+/* --- スマホ（700px未満）--- */
+@media screen and (max-width: 699px) {
+    #flipbook {
+        width: 350px;
+        height: 248px;
+        min-width: 0;
+        min-height: 0;
+        border-radius: 8px;
+    }
+    #page-indicator, #zoom-level {
+        font-size: 1.0rem;
+        padding: 2px 7px;
+    }
+    #prev-page-button, #next-page-button {
+        width: 42px; height: 42px;
+        font-size: 1.5rem;
+        left: 2px; right: 2px;
+    }
+    #thumb-sidebar {
+        width: 96vw;
+        right: -98vw;
+        border-radius: 0 0 20px 20px;
+        padding: 14px 4px 18px 8px;
+    }
+    #thumb-sidebar.visible {
+        right: 0;
+    }
+    #thumb-sidebar-arrow {
+        right: 2px;
+        width: 38px; height: 38px;
+        font-size: 1.6rem;
+    }
+    .thumbnail-item img {
+        width: 54px;
+    }
+    .thumbnail-item.cover img {
+        width: 65px;
+    }
+}
+
+/* --- タブレット（700〜1199px）--- */
+@media screen and (min-width: 700px) and (max-width: 1199px) and (orientation: portrait) {
+    #flipbook {
+        width: 800px;
+        height: 566px;
+        max-width: 98vw;
+        max-height: 80vh;
+        border-radius: 14px;
+    }
+    @media (orientation: portrait) {
+        #flipbook {
+            width: 510px;
+            height: 730px;
+            max-width: 98vw;
+            max-height: 82vh;
+        }
+    }
+    @media (orientation: landscape) {
+        #flipbook {
+            width: 960px;
+            height: 660px;
+            max-width: 98vw;
+            max-height: 82vh;
+        }
+    }
+    #page-indicator, #zoom-level {
+        font-size: 1.13rem;
+        padding: 3px 11px;
+    }
+    #prev-page-button, #next-page-button {
+        width: 50px; height: 50px;
+        font-size: 1.8rem;
+        left: 6px; right: 6px;
+    }
+    #thumb-sidebar {
+        width: 260px;
+        right: -264px;
+        border-radius: 14px 0 0 14px;
+        padding: 18px 5px 20px 8px;
+    }
+    #thumb-sidebar.visible {
+        right: 0;
+    }
+    #thumb-sidebar-arrow {
+        right: 6px;
+        width: 40px; height: 40px;
+        font-size: 1.7rem;
+    }
+    .thumbnail-item img {
+        width: 62px;
+    }
+    .thumbnail-item.cover img {
+        width: 78px;
+    }
+}
+
+/* --- タブレット横持ちはPCと同じ --- */
+@media screen and (min-width: 700px) and (max-width: 1199px) and (orientation: landscape) {
+    #flipbook {
+        width: 800px;
+        height: 566px;
+        max-width: 92vw;
+        max-height: 89vh;
+        border-radius: 18px;
+    }
+    #page-indicator, #zoom-level {
+        font-size: 1.22rem;
+        padding: 4px 15px;
+    }
+    #prev-page-button, #next-page-button {
+        width: 60px; height: 60px;
+        font-size: 2.2rem;
+        left: 12px; right: 12px;
+    }
+    #thumb-sidebar {
+        width: 340px;
+        right: -346px;
+        border-radius: 18px 0 0 18px;
+        padding: 32px 12px 24px 12px;
+    }
+    #thumb-sidebar.visible {
+        right: 0;
+    }
+    #thumb-sidebar-arrow {
+        right: 14px;
+        width: 48px; height: 48px;
+        font-size: 2.2rem;
+    }
+    .thumbnail-item img {
+        width: 90px;
+    }
+    .thumbnail-item.cover img {
+        width: 110px;
+    }
+}
+
+
+/* --- PC（1200px以上）--- */
+@media screen and (min-width: 1200px) {
+    #flipbook {
+        width: 1240px;
+        height: 870px;
+        max-width: 92vw;
+        max-height: 89vh;
+        border-radius: 18px;
+    }
+    #page-indicator, #zoom-level {
+        font-size: 1.22rem;
+        padding: 4px 15px;
+    }
+    #prev-page-button, #next-page-button {
+        width: 60px; height: 60px;
+        font-size: 2.2rem;
+        left: 12px; right: 12px;
+    }
+    #thumb-sidebar {
+        width: 340px;
+        right: -346px;
+        border-radius: 18px 0 0 18px;
+        padding: 32px 12px 24px 12px;
+    }
+    #thumb-sidebar.visible {
+        right: 0;
+    }
+    #thumb-sidebar-arrow {
+        right: 14px;
+        width: 48px; height: 48px;
+        font-size: 2.2rem;
+    }
+    .thumbnail-item img {
+        width: 90px;
+    }
+    .thumbnail-item.cover img {
+        width: 110px;
+    }
+}
