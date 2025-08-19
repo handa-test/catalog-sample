@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#121212" />
+  <title>デジタルカタログ</title>
+
+  <!-- スタイル -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <noscript>
+    <div style="padding:16px;background:#ffefc5;color:#222;font-family:system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans JP', sans-serif;">
+      JavaScript を有効にしてください。カタログ閲覧には JavaScript が必要です。
+    </div>
+  </noscript>
+
+  <!-- CTA（テキストとURLは data 属性で動的変更可能） -->
+  <a
+    id="cta-button"
+    data-cta-text="お問い合わせはこちら"
+    data-cta-url="https://handa-cp.co.jp/"
+    href="https://handa-cp.co.jp/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="お問い合わせはこちら（別タブで開く）"
+    >お問い合わせはこちら</a
+  >
+
+  <!-- 読み込みオーバーレイ -->
+  <div id="loading-overlay" aria-hidden="true">
+    <div class="loading-content" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="loading-text">読み込み中…</div>
+    </div>
+  </div>
+
+  <!-- 目次（ToC）パネル：必要に応じて scripts.js で項目を自動生成 -->
+  <aside id="toc-panel" class="hidden" aria-label="目次">
+    <div class="toc-header">
+      <h3 class="toc-title">目次</h3>
+      <button id="toc-close" class="icon-btn" aria-label="目次を閉じる">×</button>
+    </div>
+    <ul id="toc-list" class="toc-list"></ul>
+  </aside>
+
+  <!-- サムネイルサイドバー -->
+  <div id="thumbnail-sidebar" class="hidden" aria-label="サムネイル一覧">
+    <div class="thumbnail-header">
+      <h3>サムネイル</h3>
+      <button
+        id="close-thumbnail-sidebar"
+        class="icon-btn"
+        aria-label="サムネイルを閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <div id="thumbnail-container"></div>
+  </div>
+
+  <!-- ビューア -->
+  <div class="viewer-wrapper">
+    <!-- data-direction: ltr / rtl を scripts.js で参照可能にしておく -->
+    <div
+      id="flipbook"
+      class="flipbook"
+      data-direction="ltr"
+      aria-label="デジタルカタログ"
+    >
+      <!--
+        画像は A4 縦想定（595x842 相当）で配置。
+        ファイル名やページ数は実データに合わせて調整してください。
+        初期値として 14 ページを記述しています。
+      -->
+      <div class="page"><img src="images_png/catalog-01.png" alt="表紙（1ページ目）" /></div>
+      <div class="page"><img src="images_png/catalog-02.png" alt="2ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-03.png" alt="3ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-04.png" alt="4ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-05.png" alt="5ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-06.png" alt="6ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-07.png" alt="7ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-08.png" alt="8ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-09.png" alt="9ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-10.png" alt="10ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-11.png" alt="11ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-12.png" alt="12ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-13.png" alt="13ページ目" /></div>
+      <div class="page"><img src="images_png/catalog-14.png" alt="裏表紙（14ページ目）" /></div>
+    </div>
+  </div>
+
+  <!-- コントロールバー -->
+  <div id="controls" role="toolbar" aria-label="カタログ操作">
+    <div class="controls-left">
+      <button id="prev-page-button" class="control-btn" aria-label="前のページへ">←</button>
+      <button id="next-page-button" class="control-btn" aria-label="次のページへ">→</button>
+      <button id="toc-button" class="control-btn" aria-haspopup="true" aria-controls="toc-panel" aria-label="目次を開く">目次</button>
+      <button id="thumbnail-button" class="control-btn" aria-controls="thumbnail-sidebar" aria-expanded="false" aria-label="サムネイルを開く">サムネイル</button>
+    </div>
+
+    <div class="controls-center">
+      <div id="page-indicator" aria-live="polite" aria-atomic="true">
+        <span id="current-page">1</span> / <span id="total-pages">14</span>
+      </div>
+      <div id="progress" aria-hidden="true">
+        <div id="progress-bar" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <div class="controls-right">
+      <button id="zoom-out" class="control-btn" aria-label="縮小">－</button>
+      <button id="zoom-in" class="control-btn" aria-label="拡大">＋</button>
+      <button id="fullscreen-button" class="control-btn" aria-label="全画面表示">⤢</button>
+    </div>
+  </div>
+
+  <!-- スクリプト -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/turn.min.js"></script>
+  <script src="js/scripts.js"></script>
+</body>
+</html>
